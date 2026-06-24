@@ -39,38 +39,29 @@
         <!-- Vitrine de Produtos -->
         <main class="container">
             <h2 class="section-title">Destaques da Semana</h2>
-            
             <div class="products-grid">
                 <!-- Produto 1 -->
                 <div class="product-card" data-id="1" data-name="Casaco Minimalista Alfaiataria" data-price="249.90" data-img="🧥">
                     <div class="badge">Novo</div>
-                    <div class="product-img-wrapper">
-                        <div class="product-img">🧥</div>
-                    </div>
+                    <div class="product-img-wrapper"><div class="product-img">🧥</div></div>
                     <div class="product-info">
                         <h3>Casaco Minimalista Alfaiataria</h3>
                         <p class="price">R$ 249,90</p>
                         <button class="btn-add ripple">Adicionar ao Carrinho</button>
                     </div>
                 </div>
-
                 <!-- Produto 2 -->
                 <div class="product-card" data-id="2" data-name="Camiseta Algodão Egípcio" data-price="89.90" data-img="👕">
-                    <div class="product-img-wrapper">
-                        <div class="product-img">👕</div>
-                    </div>
+                    <div class="product-img-wrapper"><div class="product-img">👕</div></div>
                     <div class="product-info">
                         <h3>Camiseta Algodão Egípcio</h3>
                         <p class="price">R$ 89,90</p>
                         <button class="btn-add ripple">Adicionar ao Carrinho</button>
                     </div>
                 </div>
-
                 <!-- Produto 3 -->
                 <div class="product-card" data-id="3" data-name="Calça Sarja Slim Fit" data-price="159.90" data-img="👖">
-                    <div class="product-img-wrapper">
-                        <div class="product-img">👖</div>
-                    </div>
+                    <div class="product-img-wrapper"><div class="product-img">👖</div></div>
                     <div class="product-info">
                         <h3>Calça Sarja Slim Fit</h3>
                         <p class="price">R$ 159,90</p>
@@ -85,22 +76,19 @@
     <div id="page-profile" class="container hidden fade-in">
         <div class="profile-layout">
             <aside class="profile-sidebar">
-                <!-- Foto de perfil interativa -->
                 <div class="avatar-wrapper">
                     <img id="profile-img-display" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888888'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Avatar">
                     <label for="avatar-input" class="upload-hint">Alterar Foto</label>
                     <input type="file" id="avatar-input" accept="image/*" hidden>
                 </div>
-
                 <h3 id="profile-user-name">Nome do Usuário</h3>
                 <p id="profile-user-email">usuario@email.com</p>
-                <p id="profile-user-phone" style="font-size:12px; margin-top:-25px; margin-bottom:25px; color:#aaa;">Sem telefone salvo</p>
-                
+                <p id="profile-user-cpf" style="font-size:12px; margin-top:-25px; color:#aaa;">CPF: 000.000.000-00</p>
+                <p id="profile-user-phone" style="font-size:12px; margin-bottom:25px; color:#aaa;">Sem telefone salvo</p>
                 <button class="btn-logout ripple" id="btnLogout">Sair da Conta</button>
             </aside>
 
             <section class="profile-content">
-                <!-- Form de Alteração de Dados -->
                 <div class="profile-settings-box">
                     <h3>Editar Meus Dados</h3>
                     <form id="updateProfileForm" class="inline-form">
@@ -115,21 +103,18 @@
                         <button type="submit" class="btn-submit ripple" style="margin-top:0; height:47px;">Salvar</button>
                     </form>
                 </div>
-
-                <!-- Histórico de Pedidos Atualizável -->
                 <h2 style="margin-top: 40px; margin-bottom: 20px; font-weight: 400; letter-spacing: 1px;">Histórico de Pedidos</h2>
-                <div class="orders-list" id="orders-container">
-                    <!-- Pedidos inseridos dinamicamente aqui -->
-                </div>
+                <div class="orders-list" id="orders-container"></div>
             </section>
         </div>
     </div>
 
-    <!-- MODAL ÚNICO DE AUTENTICAÇÃO -->
+    <!-- MODAL ÚNICO DE AUTENTICAÇÃO COM VERIFICAÇÃO DE E-MAIL -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-btn" id="closeAuthBtn">&times;</button>
             
+            <!-- Vista 1: Login -->
             <div id="auth-login-view" class="fade-in">
                 <h2>Acesse sua Conta</h2>
                 <p id="login-alert-msg">Insira seus dados para entrar.</p>
@@ -142,11 +127,12 @@
                         <label>Senha</label>
                         <input type="password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-submit ripple">Entrar na Loja</button>
+                    <button type="submit" class="btn-submit ripple">Solicitar Código de Acesso</button>
                 </form>
                 <p class="switch-auth">Não tem conta? <a href="#" id="to-register">Criar uma conta</a></p>
             </div>
 
+            <!-- Vista 2: Cadastro -->
             <div id="auth-register-view" class="hidden fade-in">
                 <h2>Crie sua Conta</h2>
                 <p>Cadastre-se rápido para acompanhar suas compras.</p>
@@ -156,6 +142,10 @@
                         <input type="text" id="register-name" placeholder="Ex: João Silva" required>
                     </div>
                     <div class="input-group">
+                        <label>CPF</label>
+                        <input type="text" id="register-cpf" placeholder="000.000.000-00" maxlength="14" required>
+                    </div>
+                    <div class="input-group">
                         <label>E-mail</label>
                         <input type="email" id="register-email" placeholder="seu@email.com" required>
                     </div>
@@ -163,10 +153,28 @@
                         <label>Senha</label>
                         <input type="password" required placeholder="Crie uma senha forte">
                     </div>
-                    <button type="submit" class="btn-submit ripple">Finalizar Cadastro</button>
+                    <button type="submit" class="btn-submit ripple">Enviar Código de Validação</button>
                 </form>
                 <p class="switch-auth">Já tem conta? <a href="#" id="to-login">Fazer Login</a></p>
             </div>
+
+            <!-- Vista 3: Tela do Código de Segurança (2FA) -->
+            <div id="auth-verification-view" class="hidden fade-in" style="text-align: center;">
+                <h2>Código de Segurança</h2>
+                <p>Enviamos um código de verificação de 4 dígitos para o seu e-mail cadastrado.</p>
+                
+                <div class="code-simulation-badge" id="simulated-email-code">0000</div>
+                
+                <form id="verificationForm">
+                    <div class="input-group" style="max-width: 200px; margin: 0 auto 20px;">
+                        <label style="text-align: center;">Inserir Código</label>
+                        <input type="text" id="input-security-code" maxlength="4" placeholder="0000" style="text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: 600;" required>
+                    </div>
+                    <button type="submit" class="btn-submit ripple">Confirmar e Entrar</button>
+                </form>
+                <p class="switch-auth"><a href="#" id="back-to-auth-start">Voltar ao início</a></p>
+            </div>
+
         </div>
     </div>
 
@@ -175,11 +183,9 @@
         <div class="cart-sidebar">
             <button class="close-btn" id="closeCartBtn">&times;</button>
             <h2>Seu Carrinho</h2>
-            
             <div class="cart-items" id="cart-items-container">
                 <p class="empty-cart-msg">Seu carrinho está vazio.</p>
             </div>
-
             <div class="cart-footer">
                 <div class="cart-total">
                     <span>Total:</span>
@@ -190,7 +196,6 @@
         </div>
     </div>
 
-    <!-- Rodapé -->
     <footer>
         <p>&copy; 2026 VIBES ATELIER. Estilo consciente e atemporal.</p>
     </footer>
