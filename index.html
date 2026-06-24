@@ -9,6 +9,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
+<!-- Modifique essa parte dentro do <header> -> .nav-icons -->
+<div class="nav-icons">
+    <!-- Menu de Perfil Profissional Dropdown -->
+    <div class="profile-menu-container" id="profileDropdownContainer">
+        <button class="icon-btn ripple" id="openAuthBtn">👤 Entrar</button>
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-header">
+                <p class="dropdown-name" id="drop-user-name">Nome do Cliente</p>
+                <p class="dropdown-email" id="drop-user-email">cliente@email.com</p>
+            </div>
+            <hr class="dropdown-divider">
+            <a href="#" class="dropdown-item" id="drop-btn-profile">⚙️ Meu Perfil</a>
+            <a href="#" class="dropdown-item" id="drop-btn-orders">📦 Meus Pedidos</a>
+            <hr class="dropdown-divider">
+            <a href="#" class="dropdown-item logout-item" id="drop-btn-logout">🚪 Sair da Conta</a>
+        </div>
+    </div>
+    
+    <button class="icon-btn ripple" id="openCartBtn">🛒 <span id="cart-count">0</span></button>
+</div>
 <body>
 
     <!-- Navegação / Topo Premium -->
