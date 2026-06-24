@@ -1,43 +1,59 @@
 // Dados Globais da Aplicação
 let usuarioLogado = null;
 let carrinho = [];
-
-// Histórico de pedidos simulado baseado no usuário ativo
 let pedidosUsuarios = {}; 
 
-// Seleção de Páginas Principais
+// Variáveis de Controle do Token de E-mail (2FA)
+let tokenGeradoSessao = null;
+let dadosTemporariosAutenticacao = null; // Armazena temporariamente os dados antes de validar o token
+
+// Seleção de Páginas
 const pageHome = document.getElementById('page-home');
 const pageProfile = document.getElementById('page-profile');
 const btnHome = document.getElementById('btn-home');
 const logoBrand = document.getElementById('logo-brand');
 
-// Componentes do Modal de Login/Cadastro
+// Vistas do Modal de Autenticação
 const authModal = document.getElementById('authModal');
 const openAuthBtn = document.getElementById('openAuthBtn');
 const closeAuthBtn = document.getElementById('closeAuthBtn');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
+const verificationForm = document.getElementById('verificationForm');
+
 const loginView = document.getElementById('auth-login-view');
 const registerView = document.getElementById('auth-register-view');
+const verificationView = document.getElementById('auth-verification-view');
+
 const toRegister = document.getElementById('to-register');
 const toLogin = document.getElementById('to-login');
+const backToAuthStart = document.getElementById('back-to-auth-start');
 const loginAlertMsg = document.getElementById('login-alert-msg');
+const simulatedEmailCode = document.getElementById('simulated-email-code');
 
-// Componentes do Carrinho
+// Máscara do campo CPF em tempo de execução
+document.getElementById('register-cpf').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.slice(0, 11);
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    e.target.value = value;
+});
+
+// Componentes Gerais
 const cartOverlay = document.getElementById('cartOverlay');
 const openCartBtn = document.getElementById('openCartBtn');
 const closeCartBtn = document.getElementById('closeCartBtn');
 const cartItemsContainer = document.getElementById('cart-items-container');
 const cartTotalPrice = document.getElementById('cart-total-price');
 const cartCount = document.getElementById('cart-count');
-
-// Componentes do Painel de Perfil Avançado
 const avatarInput = document.getElementById('avatar-input');
 const profileImgDisplay = document.getElementById('profile-img-display');
 const updateProfileForm = document.getElementById('updateProfileForm');
 const ordersContainer = document.getElementById('orders-container');
 
-// ================= NAVEGAÇÃO ENTRE PRODUTOS E PERFIL =================
+// ================= NAVEGAÇÃO =================
 function exibirHome() {
     pageProfile.classList.add('hidden');
     pageHome.classList.remove('hidden');
@@ -51,33 +67,49 @@ function exibirPerfil() {
     pageHome.classList.add('hidden');
     pageProfile.classList.remove('hidden');
     
-    // Atualiza os dados na tela do perfil
     document.getElementById('profile-user-name').textContent = usuarioLogado.nome;
     document.getElementById('profile-user-email').textContent = usuarioLogado.email;
+    document.getElementById('profile-user-cpf').textContent = `CPF: ${usuarioLogado.cpf}`;
     document.getElementById('profile-user-phone').textContent = usuarioLogado.telefone || "Sem telefone salvo";
     
-    // Alimenta os inputs de edição
     document.getElementById('update-name').value = usuarioLogado.nome;
     document.getElementById('update-phone').value = usuarioLogado.telefone || "";
     
-    // Trata a foto do perfil
     if (usuarioLogado.foto) {
         profileImgDisplay.src = usuarioLogado.foto;
     } else {
         profileImgDisplay.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888888'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
     }
-
     renderizarPedidos();
 }
 
 btnHome.addEventListener('click', (e) => { e.preventDefault(); exibirHome(); });
 logoBrand.addEventListener('click', exibirHome);
 
-// ================= SISTEMA DE LOGIN / CADASTRO DA CONTA =================
+// ================= CONTROLE DE FLUXO DE SEGURANÇA (2FA) =================
 function exibirModalLoginComAviso(mensagem) {
-    loginAlertMsg.textContent = message = mensagem;
+    loginAlertMsg.textContent = mensagem;
     loginAlertMsg.classList.add('alert-highlight');
+    resetViewsModais();
+    loginView.classList.remove('hidden');
     authModal.classList.add('active');
+}
+
+function resetViewsModais() {
+    loginView.classList.add('hidden');
+    registerView.classList.add('hidden');
+    verificationView.classList.add('hidden');
+}
+
+function iniciarDesafioToken(dadosUsuario) {
+    dadosTemporariosAutenticacao = dadosUsuario;
+    tokenGeradoSessao = Math.floor(1000 + Math.random() * 9000).toString(); // Gera token 4 dígitos
+    
+    // Simulação do painel enviando o e-mail: injeta o código visível no badge verde do modal
+    simulatedEmailCode.textContent = tokenGeradoSessao;
+    
+    resetViewsModais();
+    verificationView.classList.remove('hidden');
 }
 
 openAuthBtn.addEventListener('click', () => {
@@ -86,55 +118,75 @@ openAuthBtn.addEventListener('click', () => {
     } else {
         loginAlertMsg.textContent = "Insira seus dados para entrar.";
         loginAlertMsg.classList.remove('alert-highlight');
+        resetViewsModais();
+        loginView.classList.remove('hidden');
         authModal.classList.add('active');
     }
 });
 
-closeAuthBtn.addEventListener('click', () => authModal.remove('active'));
+closeAuthBtn.addEventListener('click', () => authModal.classList.remove('active'));
 
 toRegister.addEventListener('click', (e) => { 
-    e.preventDefault();
-    loginView.classList.add('hidden'); 
-    registerView.classList.remove('hidden'); 
+    e.preventDefault(); resetViewsModais(); registerView.classList.remove('hidden'); 
 });
-
 toLogin.addEventListener('click', (e) => { 
-    e.preventDefault();
-    registerView.classList.add('hidden'); 
-    loginView.classList.remove('hidden'); 
+    e.preventDefault(); resetViewsModais(); loginView.classList.remove('hidden'); 
+});
+backToAuthStart.addEventListener('click', (e) => {
+    e.preventDefault(); resetViewsModais(); loginView.classList.remove('hidden');
 });
 
+// Submissão do Cadastro (Pede CPF)
 registerForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('register-email').value;
-    usuarioLogado = {
+    const cpf = document.getElementById('register-cpf').value;
+    
+    if (cpf.length < 14) {
+        alert("Por favor, digite um CPF válido.");
+        return;
+    }
+
+    iniciarDesafioToken({
         nome: document.getElementById('register-name').value,
         email: email,
+        cpf: cpf,
         telefone: "",
         foto: null
-    };
-    if (!pedidosUsuarios[email]) pedidosUsuarios[email] = [];
-    sucessoAutenticacao();
+    });
 });
 
+// Submissão do Login
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const emailInformado = document.getElementById('login-email').value;
-    usuarioLogado = {
-        nome: emailInformado.split('@')[0],
-        email: emailInformado,
+    const email = document.getElementById('login-email').value;
+    iniciarDesafioToken({
+        nome: email.split('@')[0],
+        email: email,
+        cpf: "Não informado (Login rápido)",
         telefone: "",
         foto: null
-    };
-    if (!pedidosUsuarios[emailInformado]) pedidosUsuarios[emailInformado] = [];
-    sucessoAutenticacao();
+    });
 });
 
-function sucessoAutenticacao() {
-    openAuthBtn.innerHTML = `👤 Meu Perfil`;
-    authModal.classList.remove('active');
-    exibirPerfil();
-}
+// Formulário de Validação do Código do E-mail
+verificationForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const codigoDigitado = document.getElementById('input-security-code').value;
+
+    if (codigoDigitado === tokenGeradoSessao) {
+        usuarioLogado = dadosTemporariosAutenticacao;
+        if (!pedidosUsuarios[usuarioLogado.email]) {
+            pedidosUsuarios[usuarioLogado.email] = [];
+        }
+        document.getElementById('input-security-code').value = ""; // Limpa campo
+        openAuthBtn.innerHTML = `👤 Meu Perfil`;
+        authModal.classList.remove('active');
+        exibirPerfil();
+    } else {
+        alert("Código de segurança incorreto! Tente novamente.");
+    }
+});
 
 document.getElementById('btnLogout').addEventListener('click', () => {
     usuarioLogado = null;
@@ -142,23 +194,19 @@ document.getElementById('btnLogout').addEventListener('click', () => {
     exibirHome();
 });
 
-// ================= RECURSOS AVANÇADOS DO PERFIL (FOTO E DADOS) =================
-// Alteração Dinâmica da Foto através de Upload Local
+// ================= ATUALIZAÇÕES DO PERFIL =================
 avatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(event) {
             profileImgDisplay.src = event.target.result;
-            if (usuarioLogado) {
-                usuarioLogado.foto = event.target.result; // Salva a string base64 na sessão do usuário
-            }
+            if (usuarioLogado) usuarioLogado.foto = event.target.result;
         };
         reader.readAsDataURL(file);
     }
 });
 
-// Formulário de Edição de Dados Cadastrais
 updateProfileForm.addEventListener('submit', function(e) {
     e.preventDefault();
     if (usuarioLogado) {
@@ -169,7 +217,6 @@ updateProfileForm.addEventListener('submit', function(e) {
     }
 });
 
-// Renderizador Dinâmico de Pedidos com Correção de Status
 function renderizarPedidos() {
     ordersContainer.innerHTML = '';
     const listaDePedidos = pedidosUsuarios[usuarioLogado.email] || [];
@@ -179,7 +226,6 @@ function renderizarPedidos() {
         return;
     }
 
-    // Cria os cards dinamicamente baseados nas compras efetuadas
     listaDePedidos.forEach(pedido => {
         const orderHtml = `
             <div class="order-card animate-slide-up">
@@ -193,11 +239,11 @@ function renderizarPedidos() {
                 </div>
             </div>
         `;
-        ordersContainer.insertAdjacentHTML('afterbegin', orderHtml); // Novos pedidos aparecem no topo
+        ordersContainer.insertAdjacentHTML('afterbegin', orderHtml);
     });
 }
 
-// ================= SISTEMA E LÓGICA DO CARRINHO =================
+// ================= LÓGICA DO CARRINHO =================
 openCartBtn.addEventListener('click', () => cartOverlay.classList.add('active'));
 closeCartBtn.addEventListener('click', () => cartOverlay.classList.remove('active'));
 
@@ -235,16 +281,13 @@ window.removerDoCarrinho = function(index) {
 
 function atualizarCarrinhoTela() {
     cartCount.textContent = Math.max(0, carrinho.length);
-
     if (carrinho.length === 0) {
         cartItemsContainer.innerHTML = `<p class="empty-cart-msg">Seu carrinho está vazio.</p>`;
         cartTotalPrice.textContent = `R$ 0,00`;
         return;
     }
-
     cartItemsContainer.innerHTML = '';
     let totalAcumulado = 0;
-
     carrinho.forEach((item, index) => {
         totalAcumulado += item.price;
         const itemHtml = `
@@ -259,40 +302,32 @@ function atualizarCarrinhoTela() {
         `;
         cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
     });
-
     cartTotalPrice.textContent = `R$ ${totalAcumulado.toFixed(2).replace('.', ',')}`;
 }
 
-// VALIDAÇÃO CRÍTICA: Bloquear checkout se não houver login ativo
 document.getElementById('btn-checkout').addEventListener('click', () => {
     if (carrinho.length === 0) {
         alert('Seu carrinho está vazio!');
         return;
     }
-
-    // Se NÃO estiver logado, bloqueia!
     if (!usuarioLogado) {
-        cartOverlay.classList.remove('active'); // Fecha o carrinho
-        exibirModalLoginComAviso("Você precisa estar conectado para fechar o pedido!"); // Abre login informando o motivo
+        cartOverlay.classList.remove('active');
+        exibirModalLoginComAviso("Você precisa estar conectado para fechar o pedido!");
         return;
     }
 
-    // Se estiver logado, processa a compra real e joga no histórico
     const agora = new Date();
     const novoPedido = {
-        id: Math.floor(10000 + Math.random() * 90000), // Gera ID aleatório de 5 dígitos
-        status: "Processando", // Todo pedido recém-criado inicia em processamento
+        id: Math.floor(10000 + Math.random() * 90000),
+        status: "Processando", 
         data: agora.toLocaleDateString('pt-BR'),
         hora: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
         itens: carrinho.map(item => item.name)
     };
 
-    // Insere o pedido diretamente na conta do e-mail ativo
     pedidosUsuarios[usuarioLogado.email].push(novoPedido);
-
     alert(`Compra efetuada com sucesso! Pedido #${novoPedido.id} gerado.`);
     
-    // Limpa carrinho e redireciona direto para ver a compra no perfil
     carrinho = [];
     atualizarCarrinhoTela();
     cartOverlay.classList.remove('active');
