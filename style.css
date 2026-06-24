@@ -330,3 +330,50 @@ nav a:hover::after { width: 100%; }
 .status.processando { background: #fff3cd; color: #856404; }
 
 footer { text-align: center; padding: 50px; border-top: 1px solid #eee; font-size: 12px; color: var(--accent); margin-top: 120px; }
+/* ================= CORREÇÕES DE LAYOUT DO PERFIL ================= */
+
+/* Garante que o e-mail longo não quebre o layout e diminua o tamanho se necessário */
+.profile-sidebar p {
+    color: var(--accent);
+    font-size: 12px;
+    margin-bottom: 15px;
+    word-break: break-all; /* Força a quebra correta se o e-mail for gigante */
+    padding: 0 5px;
+}
+
+/* Corrige o alinhamento dos inputs e do botão Salvar */
+.inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end; /* Alinha o botão perfeitamente por baixo com os campos */
+    gap: 20px;
+}
+
+.inline-form .input-group {
+    flex: 1;
+    min-width: 200px; /* Impede que os campos fiquem espremidos em telas menores */
+    margin-bottom: 0; /* Remove a margem antiga para alinhar com o botão */
+}
+
+/* Ajusta o botão para casar com a altura dos inputs */
+.inline-form .btn-submit {
+    margin-top: 0;
+    height: 47px;
+    width: auto;
+    padding: 0 35px;
+}
+
+/* Melhora o espaçamento em telas menores (celulares) */
+@media (max-width: 768px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .inline-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .inline-form .btn-submit {
+        width: 100%;
+    }
+}
