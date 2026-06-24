@@ -650,7 +650,6 @@ nav a:hover::after {
     margin-top: 40px; 
 }
 
-/* Sidebar Ajustada (Sem textos encavalados) */
 .profile-sidebar { 
     background: var(--card-bg); 
     padding: 40px 30px; 
@@ -714,7 +713,6 @@ nav a:hover::after {
     display: block;
 }
 
-/* Resetando margens negativas herdadas */
 #profile-user-cpf, #profile-user-phone {
     font-size: 12px !important;
     margin-top: 0 !important;
@@ -743,7 +741,6 @@ nav a:hover::after {
     color: white; 
 }
 
-/* Área de Edição e Histórico */
 .profile-settings-box { 
     background: white; 
     border: 1px solid rgba(0,0,0,0.05); 
@@ -760,7 +757,6 @@ nav a:hover::after {
     letter-spacing: 1px; 
 }
 
-/* Alinhamento Perfeito do Formulário */
 .inline-form { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
@@ -769,7 +765,7 @@ nav a:hover::after {
 }
 
 .inline-form .input-group {
-    margin-bottom: 0; /* Reseta o espaçamento padrão em prol do Gap */
+    margin-bottom: 0; 
 }
 
 .inline-form .btn-submit {
@@ -800,7 +796,6 @@ nav a:hover::after {
     font-size: 14px; 
 }
 
-/* Cards do Histórico de Pedidos */
 .order-card { 
     background: white; 
     border: 1px solid rgba(0,0,0,0.05); 
@@ -838,13 +833,178 @@ nav a:hover::after {
 }
 
 /* ==========================================
-   RODAPÉ (FOOTER)
+   NOVO RODAPÉ ROBUSTO (MUDANÇA SHEIN STYLE)
    ========================================== */
-footer { 
-    text-align: center; 
-    padding: 50px; 
-    border-top: 1px solid #eee; 
-    font-size: 12px; 
-    color: var(--accent); 
-    margin-top: 120px; 
+.main-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    margin-top: 120px;
+    padding-top: 60px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.5fr; /* Coluna da newsletter é um pouco maior */
+    gap: 40px;
+}
+
+.footer-column h3 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 25px;
+    color: var(--primary);
+}
+
+.footer-column ul {
+    list-style: none;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: #666666;
+    font-size: 13px;
+    transition: color 0.2s ease;
+}
+
+.footer-column ul li a:hover {
+    color: var(--primary);
+}
+
+/* Área Interna da Newsletter */
+.footer-newsletter p {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.footer-form {
+    margin-bottom: 15px;
+}
+
+.footer-input-group {
+    display: flex;
+    border: 1px solid #ddd;
+    background: var(--bg-light);
+}
+
+.footer-input-group input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 15px;
+    font-size: 13px;
+    outline: none;
+}
+
+.footer-input-group button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.footer-input-group button:hover {
+    background: #333333;
+}
+
+/* Redes Sociais do Rodapé */
+.footer-socials h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 25px 0 12px 0;
+    color: var(--primary);
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    text-decoration: none;
+    font-size: 18px;
+    filter: grayscale(1);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.social-icons a:hover {
+    transform: translateY(-2px);
+    filter: grayscale(0);
+}
+
+/* Linha Final de Copyright e Pagamentos */
+.footer-bottom {
+    border-top: 1px solid #f1f1f1;
+    margin-top: 60px;
+    padding: 30px 0;
+    background: var(--bg-light);
+}
+
+.footer-bottom-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-bottom p {
+    font-size: 11px;
+    color: var(--accent);
+}
+
+.footer-payments {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.payment-badges {
+    display: flex;
+    gap: 10px;
+}
+
+.pay-badge {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 3px;
+    color: #444;
+}
+
+/* Responsividade Básica para Telas Menores */
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .footer-bottom-container {
+        flex-direction: column;
+        text-align: center;
+    }
 }
