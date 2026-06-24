@@ -5,7 +5,7 @@ let pedidosUsuarios = {};
 
 // Variáveis de Controle do Token de E-mail (2FA)
 let tokenGeradoSessao = null;
-let dadosTemporariosAutenticacao = null; // Armazena temporariamente os dados antes de validar o token
+let dadosTemporariosAutenticacao = null; 
 
 // Seleção de Páginas
 const pageHome = document.getElementById('page-home');
@@ -29,9 +29,8 @@ const toRegister = document.getElementById('to-register');
 const toLogin = document.getElementById('to-login');
 const backToAuthStart = document.getElementById('back-to-auth-start');
 const loginAlertMsg = document.getElementById('login-alert-msg');
-const simulatedEmailCode = document.getElementById('simulated-email-code');
 
-// Máscara do campo CPF em tempo de execução
+// Máscara do campo CPF
 document.getElementById('register-cpf').addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, "");
     if (value.length > 11) value = value.slice(0, 11);
@@ -67,11 +66,13 @@ function exibirPerfil() {
     pageHome.classList.add('hidden');
     pageProfile.classList.remove('hidden');
     
+    // Alimenta os dados textuais do perfil
     document.getElementById('profile-user-name').textContent = usuarioLogado.nome;
     document.getElementById('profile-user-email').textContent = usuarioLogado.email;
     document.getElementById('profile-user-cpf').textContent = `CPF: ${usuarioLogado.cpf}`;
     document.getElementById('profile-user-phone').textContent = usuarioLogado.telefone || "Sem telefone salvo";
     
+    // Alimenta os inputs para edição futura
     document.getElementById('update-name').value = usuarioLogado.nome;
     document.getElementById('update-phone').value = usuarioLogado.telefone || "";
     
@@ -105,9 +106,14 @@ function iniciarDesafioToken(dadosUsuario) {
     dadosTemporariosAutenticacao = dadosUsuario;
     tokenGeradoSessao = Math.floor(1000 + Math.random() * 9000).toString(); // Gera token 4 dígitos
     
-    // Simulação do painel enviando o e-mail: injeta o código visível no badge verde do modal
-    simulatedEmailCode.textContent = tokenGeradoSessao;
+    // O código NÃO aparece mais na tela para o usuário!
+    // Ele é impresso apenas no console (F12) para que você saiba qual é o código do "e-mail" ao testar.
+    console.log(`[VIBES ATELIER] Código de segurança enviado para ${dadosUsuario.email}: ${tokenGeradoSessao}`);
     
+    // Esconde o elemento visual de simulação do código se ele existir no HTML anterior
+    const simBadge = document.getElementById('simulated-email-code');
+    if (simBadge) simBadge.style.display = 'none';
+
     resetViewsModais();
     verificationView.classList.remove('hidden');
 }
@@ -136,7 +142,7 @@ backToAuthStart.addEventListener('click', (e) => {
     e.preventDefault(); resetViewsModais(); loginView.classList.remove('hidden');
 });
 
-// Submissão do Cadastro (Pede CPF)
+// Envio do Cadastro (CPF obrigatório)
 registerForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('register-email').value;
@@ -156,12 +162,12 @@ registerForm.addEventListener('submit', (e) => {
     });
 });
 
-// Submissão do Login
+// Envio do Login
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     iniciarDesafioToken({
-        nome: email.split('@')[0],
+        nome: email.split('@')[0], // Nome provisório até validar
         email: email,
         cpf: "Não informado (Login rápido)",
         telefone: "",
@@ -169,7 +175,7 @@ loginForm.addEventListener('submit', (e) => {
     });
 });
 
-// Formulário de Validação do Código do E-mail
+// Validação do Token Digitado
 verificationForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const codigoDigitado = document.getElementById('input-security-code').value;
@@ -184,7 +190,7 @@ verificationForm.addEventListener('submit', (e) => {
         authModal.classList.remove('active');
         exibirPerfil();
     } else {
-        alert("Código de segurança incorreto! Tente novamente.");
+        alert("Código de segurança incorreto! Verifique seu console (F12) e tente novamente.");
     }
 });
 
@@ -194,7 +200,7 @@ document.getElementById('btnLogout').addEventListener('click', () => {
     exibirHome();
 });
 
-// ================= ATUALIZAÇÕES DO PERFIL =================
+// ================= SALVAMENTO E ATUALIZAÇÃO DO PERFIL =================
 avatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -207,12 +213,17 @@ avatarInput.addEventListener('change', function(e) {
     }
 });
 
+// CORREÇÃO: Salvando e refletindo instantaneamente as alterações na tela
 updateProfileForm.addEventListener('submit', function(e) {
     e.preventDefault();
     if (usuarioLogado) {
+        // Grava as novas informações inseridas nos inputs na nossa variável de sessão
         usuarioLogado.nome = document.getElementById('update-name').value;
         usuarioLogado.telefone = document.getElementById('update-phone').value;
-        alert("Dados salvos com sucesso!");
+        
+        alert("Dados atualizados com sucesso!");
+        
+        // Recarrega a tela para redesenhar os nomes nos elementos HTML
         exibirPerfil();
     }
 });
