@@ -23,28 +23,66 @@ function checkLoginStatus() {
         // Altera o texto do botão para o primeiro nome do cliente
         authBtn.innerText = `👤 Olá, ${currentUser.name.split(' ')[0]}`;
         
-        // Atualiza os dados dentro do menu suspenso
+        // Atualiza os dados dentro do menu suspenso (Dropdown)
         document.getElementById('drop-user-name').innerText = currentUser.name;
         document.getElementById('drop-user-email').innerText = currentUser.email;
         
         updateProfileDOM();
     } else {
         authBtn.innerText = "👤 Entrar";
-        dropdown.classList.remove('active'); // Garante que o menu feche se deslogar
+        if (dropdown) dropdown.classList.remove('active'); // Garante que o menu feche se deslogar
         showPage('home');
     }
 }
 
-// Adicione/substitua esses gatilhos dentro da sua função setupEventListeners()
+function showPage(pageName) {
+    const pages = {
+        home: document.getElementById('page-home'),
+        profile: document.getElementById('page-profile')
+    };
+    
+    Object.keys(pages).forEach(key => {
+        if (pages[key]) {
+            if (key === pageName) {
+                pages[key].classList.remove('hidden');
+            } else {
+                pages[key].classList.add('hidden');
+            }
+        }
+    });
+}
+
+function switchAuthView(viewName) {
+    const views = {
+        login: document.getElementById('auth-login-view'),
+        register: document.getElementById('auth-register-view'),
+        verification: document.getElementById('auth-verification-view')
+    };
+
+    Object.keys(views).forEach(key => {
+        if (views[key]) {
+            if (key === viewName) {
+                views[key].classList.remove('hidden');
+            } else {
+                views[key].classList.add('hidden');
+            }
+        }
+    });
+}
+
+// ==========================================
+// 3. EVENTOS UNIFICADOS (MODAIS, ABAS, DROPDOWN)
+// ==========================================
 function setupEventListeners() {
     const authModal = document.getElementById('authModal');
+    const cartOverlay = document.getElementById('cartOverlay');
     const dropdown = document.getElementById('profileDropdown');
 
-    // Comportamento do Botão de Perfil Principal
+    // Comportamento Inteligente do Botão de Perfil (Entrar ou Abrir Dropdown)
     document.getElementById('openAuthBtn').addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita fechar imediatamente
+        e.stopPropagation(); // Evita fechar imediatamente pelo clique no document
         if (currentUser) {
-            // Se logado, alterna a visibilidade do menu profissional
+            // Se já logado, alterna a visibilidade do menu profissional dropdown
             dropdown.classList.toggle('active');
         } else {
             // Se não logado, abre o modal de login
@@ -53,12 +91,12 @@ function setupEventListeners() {
         }
     });
 
-    // Fechar o menu se o usuário clicar em qualquer outro lugar da tela
+    // Fechar o menu dropdown se o usuário clicar em qualquer outro lugar da tela
     document.addEventListener('click', () => {
-        dropdown.classList.remove('active');
+        if (dropdown) dropdown.classList.remove('active');
     });
 
-    // Itens de clique interno do Menu Profissional
+    // Itens de clique interno do Menu Profissional Dropdown
     document.getElementById('drop-btn-profile').addEventListener('click', (e) => {
         e.preventDefault();
         showPage('profile');
@@ -68,10 +106,12 @@ function setupEventListeners() {
         e.preventDefault();
         showPage('profile');
         // Rola a página suavemente até a seção de pedidos do perfil
-        document.getElementById('orders-container').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            document.getElementById('orders-container').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
     });
 
-    // Função de Logout unificada no menu suspenso e na sidebar
+    // Função de Logout unificada (usada no menu suspenso e na sidebar)
     const efetuarLogout = () => {
         localStorage.removeItem('currentUser');
         currentUser = null;
@@ -82,52 +122,25 @@ function setupEventListeners() {
     document.getElementById('drop-btn-logout').addEventListener('click', (e) => { e.preventDefault(); efetuarLogout(); });
     document.getElementById('btnLogout').addEventListener('click', efetuarLogout);
 
-    /* ... Mantenha o restante dos seletores anteriores (carrinho, forms, etc.) ... */
-}
-// ==========================================
-// 3. EVENTOS (MODAIS, ABAS E LOGOUT)
-// ==========================================
-function setupEventListeners() {
-    const authModal = document.getElementById('authModal');
-    const cartOverlay = document.getElementById('cartOverlay');
-
-    // Navegação e Perfil
-    document.getElementById('openAuthBtn').addEventListener('click', () => {
-        if (currentUser) {
-            showPage('profile');
-        } else {
-            authModal.classList.add('active');
-            switchAuthView('login');
-        }
-    });
-
-    // Fechar Modais (Usando a classe .active do seu CSS)
+    // Fechar Modais 
     document.getElementById('closeAuthBtn').addEventListener('click', () => authModal.classList.remove('active'));
     document.getElementById('openCartBtn').addEventListener('click', () => cartOverlay.classList.add('active'));
     document.getElementById('closeCartBtn').addEventListener('click', () => cartOverlay.classList.remove('active'));
 
-    // Alternar Telas de Autenticação
+    // Alternar Telas de Autenticação Internas do Modal
     document.getElementById('to-register').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('register'); });
     document.getElementById('to-login').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('login'); });
     document.getElementById('back-to-auth-start').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('login'); });
 
-    // Cliques de Retorno à Home
+    // Cliques de Retorno à Home (Logo e link Coleção)
     document.getElementById('logo-brand').addEventListener('click', () => showPage('home'));
     document.getElementById('btn-home').addEventListener('click', (e) => { e.preventDefault(); showPage('home'); });
 
-    // Cadastro, Login e Verificação
+    // Submissão de Formulários
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('verificationForm').addEventListener('submit', handleVerification);
     document.getElementById('updateProfileForm').addEventListener('submit', handleProfileUpdate);
-
-    // Logout
-    document.getElementById('btnLogout').addEventListener('click', () => {
-        localStorage.removeItem('currentUser');
-        currentUser = null;
-        checkLoginStatus();
-        showPage('home');
-    });
 
     // Captura Cliques nos Botões da Vitrine de Produtos
     document.querySelectorAll('.product-card .btn-add').forEach(button => {
@@ -148,7 +161,7 @@ function setupEventListeners() {
 }
 
 // ==========================================
-// 4. LÓGICA DE AUTENTICAÇÃO
+// 4. LÓGICA DE AUTENTICAÇÃO (SISTEMA 2FA)
 // ==========================================
 function handleRegister(e) {
     e.preventDefault();
@@ -175,7 +188,7 @@ function handleLogin(e) {
         document.getElementById('simulated-email-code').innerText = generatedCode;
         switchAuthView('verification');
     } else {
-        alert("E-mail não cadastrado. Criando um novo fluxo para você...");
+        alert("E-mail não cadastrado. Redirecionando para o formulário de cadastro...");
         switchAuthView('register');
     }
 }
@@ -191,7 +204,7 @@ function handleVerification(e) {
         if (userIndex === -1) {
             users.push(pendingUser);
         } else {
-            pendingUser = users[userIndex]; // Puxa histórico real caso já exista
+            pendingUser = users[userIndex]; // Retorna dados salvos anteriormente se o usuário já existia
         }
         
         localStorage.setItem('users', JSON.stringify(users));
@@ -206,21 +219,23 @@ function handleVerification(e) {
         document.getElementById('loginForm').reset();
         document.getElementById('verificationForm').reset();
     } else {
-        alert("Código incorreto. Digite o código exibido na caixa preta.");
+        alert("Código incorreto. Por favor, verifique o número gerado.");
     }
 }
 
 // ==========================================
-// 5. ATUALIZAÇÃO DE DADOS DO PERFIL
+// 5. ATUALIZAÇÃO E PERSISTÊNCIA DO PERFIL
 // ==========================================
 function updateProfileDOM() {
     if (!currentUser) return;
 
+    // Atualiza a barra lateral (Sidebar)
     document.getElementById('profile-user-name').innerText = currentUser.name;
     document.getElementById('profile-user-email').innerText = currentUser.email;
     document.getElementById('profile-user-cpf').innerText = `CPF: ${currentUser.cpf}`;
     document.getElementById('profile-user-phone').innerText = currentUser.phone ? `Tel: ${currentUser.phone}` : "Sem telefone salvo";
 
+    // Preenche os Inputs de edição
     document.getElementById('update-name').value = currentUser.name;
     document.getElementById('update-phone').value = currentUser.phone || "";
 
@@ -234,8 +249,10 @@ function handleProfileUpdate(e) {
     currentUser.name = document.getElementById('update-name').value;
     currentUser.phone = document.getElementById('update-phone').value;
 
+    // Atualiza a sessão ativa no LocalStorage
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
+    // Sincroniza as alterações com a base de dados global local
     let users = JSON.parse(localStorage.getItem('users')) || [];
     users = users.map(u => u.email === currentUser.email ? currentUser : u);
     localStorage.setItem('users', JSON.stringify(users));
@@ -265,7 +282,7 @@ function renderOrders() {
 }
 
 // ==========================================
-// 6. SISTEMA INTEGADO DE CARRINHO E COMPRAS
+// 6. GESTÃO DO CARRINHO E COMPRAS
 // ==========================================
 function addToCart(product) {
     cart.push(product);
@@ -273,7 +290,8 @@ function addToCart(product) {
     document.getElementById('cartOverlay').classList.add('active');
 }
 
-function removeFromCart(index) {
+// Disponibilizado globalmente para escuta direta do atributo "onclick" herdado do seu HTML estruturado
+window.removeFromCart = function(index) {
     cart.splice(index, 1);
     updateCartDOM();
 }
@@ -332,21 +350,21 @@ function checkout() {
         itemsSummary: itemsSummary
     };
 
-    // Adiciona o pedido ao perfil ativo
+    // Insere o novo pedido no topo da lista (histórico reativo do cliente)
     currentUser.orders.unshift(newOrder);
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-    // Atualiza na base global de usuários
+    // Atualiza o registro permanente no banco simulado
     let users = JSON.parse(localStorage.getItem('users')) || [];
     users = users.map(u => u.email === currentUser.email ? currentUser : u);
     localStorage.setItem('users', JSON.stringify(users));
 
-    // Limpa o carrinho
+    // Reseta o estado do carrinho pós-venda concluída
     cart = [];
     updateCartDOM();
     document.getElementById('cartOverlay').classList.remove('active');
 
-    // Renderiza novos dados e envia para a tela de Perfil
+    // Atualiza a tela de exibição do painel e direciona o usuário
     updateProfileDOM();
     showPage('profile');
     alert("Compra simulada com sucesso! Seu pedido já está no histórico.");
