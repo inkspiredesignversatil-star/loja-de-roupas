@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBES ATELIER | Loja Oficial</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="logo" id="logo-brand">ALLAN<span>COSTA</span></div>
+        <nav>
+            <a href="#" id="btn-home" class="nav-link">Coleção</a>
+            <a href="#" class="nav-link">Feminino</a>
+            <a href="#" class="nav-link">Masculino</a>
+        </nav>
+        <div class="nav-icons">
+            <button class="icon-btn ripple" id="openAuthBtn">👤 Entrar</button>
+            <button class="icon-btn ripple" id="openCartBtn">🛒 <span id="cart-count">0</span></button>
+        </div>
+    </header>
+
+    <div id="page-home" class="fade-in">
+        <section class="hero">
+            <div class="hero-content">
+                <span class="hero-tag">ESSENCIAIS DE VERÃO</span>
+                <h1 class="hero-title">O minimalismo que veste a sua identidade.</h1>
+                <button class="btn-primary ripple">Explorar Coleção</button>
+            </div>
+        </section>
+
+        <main class="container">
+            <h2 class="section-title">Destaques da Semana</h2>
+            
+            <div class="products-grid">
+                <div class="product-card" data-id="1" data-name="Casaco Minimalista Alfaiataria" data-price="249.90" data-img="🧥">
+                    <div class="badge">Novo</div>
+                    <div class="product-img-wrapper">
+                        <div class="product-img">🧥</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Casaco Minimalista Alfaiataria</h3>
+                        <p class="price">R$ 249,90</p>
+                        <button class="btn-add ripple">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+
+                <div class="product-card" data-id="2" data-name="Camiseta Algodão Egípcio" data-price="89.90" data-img="👕">
+                    <div class="product-img-wrapper">
+                        <div class="product-img">👕</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Camiseta Algodão Egípcio</h3>
+                        <p class="price">R$ 89,90</p>
+                        <button class="btn-add ripple">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+
+                <div class="product-card" data-id="3" data-name="Calça Sarja Slim Fit" data-price="159.90" data-img="👖">
+                    <div class="product-img-wrapper">
+                        <div class="product-img">👖</div>
+                    </div>
+                    <div class="product-info">
+                        <h3>Calça Sarja Slim Fit</h3>
+                        <p class="price">R$ 159,90</p>
+                        <button class="btn-add ripple">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="page-profile" class="container hidden fade-in">
+        <div class="profile-layout">
+            <aside class="profile-sidebar">
+                <div class="profile-avatar">👤</div>
+                <h3 id="profile-user-name">Nome do Usuário</h3>
+                <p id="profile-user-email">usuario@email.com</p>
+                <button class="btn-logout ripple" id="btnLogout">Sair da Conta</button>
+            </aside>
+            <section class="profile-content">
+                <h2>Minhas Compras</h2>
+                <div class="orders-list">
+                    <div class="order-card animate-slide-up">
+                        <div class="order-header">
+                            <span>Pedido #84920</span>
+                            <span class="status entregue">Entregue</span>
+                        </div>
+                        <div class="order-body">
+                            <p>1x Camiseta Algodão Egípcio</p>
+                            <small>Realizado em: 12/05/2026</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <button class="close-btn" id="closeAuthBtn">&times;</button>
+            
+            <div id="auth-login-view" class="fade-in">
+                <h2>Acesse sua Conta</h2>
+                <p>Insira seus dados para entrar.</p>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <input type="email" id="login-email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha</label>
+                        <input type="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-submit ripple">Entrar na Loja</button>
+                </form>
+                <p class="switch-auth">Não tem conta? <a href="#" id="to-register">Criar uma conta</a></p>
+            </div>
+
+            <div id="auth-register-view" class="hidden fade-in">
+                <h2>Crie sua Conta</h2>
+                <p>Cadastre-se rápido para acompanhar suas compras.</p>
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label>Nome Completo</label>
+                        <input type="text" id="register-name" placeholder="Ex: João Silva" required>
+                    </div>
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <input type="email" id="register-email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha</label>
+                        <input type="password" required placeholder="Crie uma senha forte">
+                    </div>
+                    <button type="submit" class="btn-submit ripple">Finalizar Cadastro</button>
+                </form>
+                <p class="switch-auth">Já tem conta? <a href="#" id="to-login">Fazer Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-sidebar">
+            <button class="close-btn" id="closeCartBtn">&times;</button>
+            <h2>Seu Carrinho</h2>
+            
+            <div class="cart-items" id="cart-items-container">
+                <p class="empty-cart-msg">Seu carrinho está vazio.</p>
+            </div>
+
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-price">R$ 0,00</span>
+                </div>
+                <button class="btn-submit ripple" id="btn-checkout">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 VIBES ATELIER. Estilo consciente e atemporal.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
