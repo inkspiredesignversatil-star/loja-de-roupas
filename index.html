@@ -11,8 +11,9 @@
 </head>
 <body>
 
+    <!-- Navegação / Topo Premium -->
     <header>
-        <div class="logo" id="logo-brand">ALLAN<span>COSTA</span></div>
+        <div class="logo" id="logo-brand">VIBES<span>ATELIER</span></div>
         <nav>
             <a href="#" id="btn-home" class="nav-link">Coleção</a>
             <a href="#" class="nav-link">Feminino</a>
@@ -24,7 +25,9 @@
         </div>
     </header>
 
+    <!-- CONTEÚDO DINÂMICO (HOME DA LOJA) -->
     <div id="page-home" class="fade-in">
+        <!-- Banner Principal -->
         <section class="hero">
             <div class="hero-content">
                 <span class="hero-tag">ESSENCIAIS DE VERÃO</span>
@@ -33,10 +36,12 @@
             </div>
         </section>
 
+        <!-- Vitrine de Produtos -->
         <main class="container">
             <h2 class="section-title">Destaques da Semana</h2>
             
             <div class="products-grid">
+                <!-- Produto 1 -->
                 <div class="product-card" data-id="1" data-name="Casaco Minimalista Alfaiataria" data-price="249.90" data-img="🧥">
                     <div class="badge">Novo</div>
                     <div class="product-img-wrapper">
@@ -49,6 +54,7 @@
                     </div>
                 </div>
 
+                <!-- Produto 2 -->
                 <div class="product-card" data-id="2" data-name="Camiseta Algodão Egípcio" data-price="89.90" data-img="👕">
                     <div class="product-img-wrapper">
                         <div class="product-img">👕</div>
@@ -60,6 +66,7 @@
                     </div>
                 </div>
 
+                <!-- Produto 3 -->
                 <div class="product-card" data-id="3" data-name="Calça Sarja Slim Fit" data-price="159.90" data-img="👖">
                     <div class="product-img-wrapper">
                         <div class="product-img">👖</div>
@@ -74,39 +81,58 @@
         </main>
     </div>
 
+    <!-- PÁGINA DE PERFIL AVANÇADA -->
     <div id="page-profile" class="container hidden fade-in">
         <div class="profile-layout">
             <aside class="profile-sidebar">
-                <div class="profile-avatar">👤</div>
+                <!-- Foto de perfil interativa -->
+                <div class="avatar-wrapper">
+                    <img id="profile-img-display" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23888888'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Avatar">
+                    <label for="avatar-input" class="upload-hint">Alterar Foto</label>
+                    <input type="file" id="avatar-input" accept="image/*" hidden>
+                </div>
+
                 <h3 id="profile-user-name">Nome do Usuário</h3>
                 <p id="profile-user-email">usuario@email.com</p>
+                <p id="profile-user-phone" style="font-size:12px; margin-top:-25px; margin-bottom:25px; color:#aaa;">Sem telefone salvo</p>
+                
                 <button class="btn-logout ripple" id="btnLogout">Sair da Conta</button>
             </aside>
+
             <section class="profile-content">
-                <h2>Minhas Compras</h2>
-                <div class="orders-list">
-                    <div class="order-card animate-slide-up">
-                        <div class="order-header">
-                            <span>Pedido #84920</span>
-                            <span class="status entregue">Entregue</span>
+                <!-- Form de Alteração de Dados -->
+                <div class="profile-settings-box">
+                    <h3>Editar Meus Dados</h3>
+                    <form id="updateProfileForm" class="inline-form">
+                        <div class="input-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="update-name" required>
                         </div>
-                        <div class="order-body">
-                            <p>1x Camiseta Algodão Egípcio</p>
-                            <small>Realizado em: 12/05/2026</small>
+                        <div class="input-group">
+                            <label>Telefone</label>
+                            <input type="text" id="update-phone" placeholder="(11) 99999-9999">
                         </div>
-                    </div>
+                        <button type="submit" class="btn-submit ripple" style="margin-top:0; height:47px;">Salvar</button>
+                    </form>
+                </div>
+
+                <!-- Histórico de Pedidos Atualizável -->
+                <h2 style="margin-top: 40px; margin-bottom: 20px; font-weight: 400; letter-spacing: 1px;">Histórico de Pedidos</h2>
+                <div class="orders-list" id="orders-container">
+                    <!-- Pedidos inseridos dinamicamente aqui -->
                 </div>
             </section>
         </div>
     </div>
 
+    <!-- MODAL ÚNICO DE AUTENTICAÇÃO -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-btn" id="closeAuthBtn">&times;</button>
             
             <div id="auth-login-view" class="fade-in">
                 <h2>Acesse sua Conta</h2>
-                <p>Insira seus dados para entrar.</p>
+                <p id="login-alert-msg">Insira seus dados para entrar.</p>
                 <form id="loginForm">
                     <div class="input-group">
                         <label>E-mail</label>
@@ -144,6 +170,7 @@
         </div>
     </div>
 
+    <!-- GAVETA DO CARRINHO LATERAL -->
     <div class="cart-overlay" id="cartOverlay">
         <div class="cart-sidebar">
             <button class="close-btn" id="closeCartBtn">&times;</button>
@@ -163,6 +190,7 @@
         </div>
     </div>
 
+    <!-- Rodapé -->
     <footer>
         <p>&copy; 2026 VIBES ATELIER. Estilo consciente e atemporal.</p>
     </footer>
