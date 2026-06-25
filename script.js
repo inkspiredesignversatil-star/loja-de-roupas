@@ -1,371 +1,442 @@
-// ==========================================
-// 1. ESTADO GLOBAL DA APLICAÇÃO
-// ==========================================
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-let cart = [];
-let generatedCode = null;
-let pendingUser = null;
+/* ==========================================================================
+   ESTADO GLOBAL E BANCO DE DADOS SIMULADO (LOCALSTORAGE)
+   ========================================================================== */
+const KEY_USERS = 'vibes_atelier_users';
+const KEY_SESSION = 'vibes_atelier_current_user';
 
-// ==========================================
-// 2. INICIALIZAÇÃO E CONTROLE DE TELAS
-// ==========================================
+let cart = [];
+let currentUser = JSON.parse(localStorage.getItem(KEY_SESSION)) || null;
+
+/* ==========================================================================
+   INICIALIZAÇÃO DO SISTEMA
+   ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    checkLoginStatus();
-    setupEventListeners();
-    updateCartDOM();
+    initAuthEvents();
+    initCartEvents();
+    initNavigation();
+    updateAuthUI();
+    updateCartUI();
 });
 
-function checkLoginStatus() {
-    const authBtn = document.getElementById('openAuthBtn');
-    const dropdown = document.getElementById('profileDropdown');
+/* ==========================================================================
+   SISTEMA DE AUTENTICAÇÃO, VALIDAÇÃO E PERFIL
+   ========================================================================== */
+
+function getRegisteredUsers() {
+    const users = localStorage.getItem(KEY_USERS);
+    return users ? JSON.parse(users) : [];
+}
+
+// Abre/Fecha a Modal de Autenticação
+function toggleAuthModal() {
+    const modal = document.getElementById('auth-modal');
+    if (!modal) return;
     
-    if (currentUser) {
-        // Altera o texto do botão para o primeiro nome do cliente
-        authBtn.innerText = `👤 Olá, ${currentUser.name.split(' ')[0]}`;
-        
-        // Atualiza os dados dentro do menu suspenso (Dropdown)
-        document.getElementById('drop-user-name').innerText = currentUser.name;
-        document.getElementById('drop-user-email').innerText = currentUser.email;
-        
-        updateProfileDOM();
-    } else {
-        authBtn.innerText = "👤 Entrar";
-        if (dropdown) dropdown.classList.remove('active'); // Garante que o menu feche se deslogar
-        showPage('home');
+    modal.classList.toggle('active');
+    
+    if (modal.classList.contains('active')) {
+        switchAuthMode('login');
     }
 }
 
-function showPage(pageName) {
-    const pages = {
-        home: document.getElementById('page-home'),
-        profile: document.getElementById('page-profile')
-    };
-    
-    Object.keys(pages).forEach(key => {
-        if (pages[key]) {
-            if (key === pageName) {
-                pages[key].classList.remove('hidden');
-            } else {
-                pages[key].classList.add('hidden');
-            }
-        }
-    });
+// Controla as telas visíveis dentro da modal ou fluxos extras de cadastro
+function switchAuthMode(mode) {
+    const signupContainer = document.getElementById('signup-form-container');
+    const registerView = document.getElementById('auth-register-view');
+    const verificationView = document.getElementById('auth-verification-view');
+
+    // Inicializa todos escondidos para evitar sobreposição
+    if (signupContainer) signupContainer.classList.add('hidden');
+    if (registerView) registerView.classList.add('hidden');
+    if (verificationView) verificationView.classList.add('hidden');
+
+    if (mode === 'login' || mode === 'signup') {
+        if (signupContainer) signupContainer.classList.remove('hidden');
+    } else if (mode === 'register') {
+        if (registerView) registerView.classList.remove('hidden');
+    } else if (mode === 'verification') {
+        if (verificationView) verificationView.classList.remove('hidden');
+    }
 }
 
-function switchAuthView(viewName) {
-    const views = {
-        login: document.getElementById('auth-login-view'),
-        register: document.getElementById('auth-register-view'),
-        verification: document.getElementById('auth-verification-view')
-    };
-
-    Object.keys(views).forEach(key => {
-        if (views[key]) {
-            if (key === viewName) {
-                views[key].classList.remove('hidden');
+// Configura os ouvintes de evento para os formulários de autenticação
+function initAuthEvents() {
+    // Evento do botão da barra de navegação "👤 Entrar"
+    const openAuthBtn = document.getElementById('openAuthBtn');
+    if (openAuthBtn) {
+        openAuthBtn.addEventListener('click', () => {
+            if (currentUser) {
+                toggleProfileDropdown();
             } else {
-                views[key].classList.add('hidden');
+                toggleAuthModal();
             }
-        }
-    });
-}
-
-// ==========================================
-// 3. EVENTOS UNIFICADOS (MODAIS, ABAS, DROPDOWN)
-// ==========================================
-function setupEventListeners() {
-    const authModal = document.getElementById('authModal');
-    const cartOverlay = document.getElementById('cartOverlay');
-    const dropdown = document.getElementById('profileDropdown');
-
-    // Comportamento Inteligente do Botão de Perfil (Entrar ou Abrir Dropdown)
-    document.getElementById('openAuthBtn').addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita fechar imediatamente pelo clique no document
-        if (currentUser) {
-            // Se já logado, alterna a visibilidade do menu profissional dropdown
-            dropdown.classList.toggle('active');
-        } else {
-            // Se não logado, abre o modal de login
-            authModal.classList.add('active');
-            switchAuthView('login');
-        }
-    });
-
-    // Fechar o menu dropdown se o usuário clicar em qualquer outro lugar da tela
-    document.addEventListener('click', () => {
-        if (dropdown) dropdown.classList.remove('active');
-    });
-
-    // Itens de clique interno do Menu Profissional Dropdown
-    document.getElementById('drop-btn-profile').addEventListener('click', (e) => {
-        e.preventDefault();
-        showPage('profile');
-    });
-
-    document.getElementById('drop-btn-orders').addEventListener('click', (e) => {
-        e.preventDefault();
-        showPage('profile');
-        // Rola a página suavemente até a seção de pedidos do perfil
-        setTimeout(() => {
-            document.getElementById('orders-container').scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-    });
-
-    // Função de Logout unificada (usada no menu suspenso e na sidebar)
-    const efetuarLogout = () => {
-        localStorage.removeItem('currentUser');
-        currentUser = null;
-        checkLoginStatus();
-        showPage('home');
-    };
-
-    document.getElementById('drop-btn-logout').addEventListener('click', (e) => { e.preventDefault(); efetuarLogout(); });
-    document.getElementById('btnLogout').addEventListener('click', efetuarLogout);
-
-    // Fechar Modais 
-    document.getElementById('closeAuthBtn').addEventListener('click', () => authModal.classList.remove('active'));
-    document.getElementById('openCartBtn').addEventListener('click', () => cartOverlay.classList.add('active'));
-    document.getElementById('closeCartBtn').addEventListener('click', () => cartOverlay.classList.remove('active'));
-
-    // Alternar Telas de Autenticação Internas do Modal
-    document.getElementById('to-register').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('register'); });
-    document.getElementById('to-login').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('login'); });
-    document.getElementById('back-to-auth-start').addEventListener('click', (e) => { e.preventDefault(); switchAuthView('login'); });
-
-    // Cliques de Retorno à Home (Logo e link Coleção)
-    document.getElementById('logo-brand').addEventListener('click', () => showPage('home'));
-    document.getElementById('btn-home').addEventListener('click', (e) => { e.preventDefault(); showPage('home'); });
-
-    // Submissão de Formulários
-    document.getElementById('registerForm').addEventListener('submit', handleRegister);
-    document.getElementById('loginForm').addEventListener('submit', handleLogin);
-    document.getElementById('verificationForm').addEventListener('submit', handleVerification);
-    document.getElementById('updateProfileForm').addEventListener('submit', handleProfileUpdate);
-
-    // Captura Cliques nos Botões da Vitrine de Produtos
-    document.querySelectorAll('.product-card .btn-add').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const card = e.target.closest('.product-card');
-            const product = {
-                id: card.dataset.id,
-                name: card.dataset.name,
-                price: parseFloat(card.dataset.price),
-                img: card.dataset.img
-            };
-            addToCart(product);
         });
-    });
+    }
 
-    // Finalizar Compra
-    document.getElementById('btn-checkout').addEventListener('click', checkout);
-}
+    // Formulário de Cadastro Inicial / Login Simplificado
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Para manter simplicidade no fluxo enviado, tratamos o submit como tentativa de login direto
+            handleLogin(e, 'signup-email', 'signup-password');
+        });
+    }
 
-// ==========================================
-// 4. LÓGICA DE AUTENTICAÇÃO (SISTEMA 2FA)
-// ==========================================
-function handleRegister(e) {
-    e.preventDefault();
-    const name = document.getElementById('register-name').value;
-    const cpf = document.getElementById('register-cpf').value;
-    const email = document.getElementById('register-email').value;
+    // Formulário de Cadastro Completo (Com a trava de E-mail e CPF)
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleSignUp(e);
+        });
+    }
 
-    pendingUser = { name, cpf, email, phone: "", orders: [] };
-    
-    generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
-    document.getElementById('simulated-email-code').innerText = generatedCode;
-    switchAuthView('verification');
-}
+    // Formulário de Verificação de Segurança (2FA Código)
+    const verificationForm = document.getElementById('verificationForm');
+    if (verificationForm) {
+        verificationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            completeRegistrationFlow();
+        });
+    }
 
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const userFound = users.find(u => u.email === email);
+    // Trocas de visualização entre links da tela
+    const toLoginLink = document.getElementById('to-login');
+    if (toLoginLink) toLoginLink.addEventListener('click', (e) => { e.preventDefault(); switchAuthMode('login'); });
 
-    if (userFound) {
-        pendingUser = userFound;
-        generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
-        document.getElementById('simulated-email-code').innerText = generatedCode;
-        switchAuthView('verification');
-    } else {
-        alert("E-mail não cadastrado. Redirecionando para o formulário de cadastro...");
-        switchAuthView('register');
+    const backToStart = document.getElementById('back-to-auth-start');
+    if (backToStart) backToStart.addEventListener('click', (e) => { e.preventDefault(); switchAuthMode('login'); });
+
+    // Botões e links do Dropdown do Perfil
+    const dropBtnProfile = document.getElementById('drop-btn-profile');
+    if (dropBtnProfile) dropBtnProfile.addEventListener('click', (e) => { e.preventDefault(); navigateTo('profile'); });
+
+    const dropBtnOrders = document.getElementById('drop-btn-orders');
+    if (dropBtnOrders) dropBtnOrders.addEventListener('click', (e) => { e.preventDefault(); navigateTo('profile'); });
+
+    const dropBtnLogout = document.getElementById('drop-btn-logout');
+    if (dropBtnLogout) dropBtnLogout.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+
+    const btnSidebarLogout = document.getElementById('btnLogout');
+    if (btnSidebarLogout) btnSidebarLogout.addEventListener('click', handleLogout);
+
+    // Formulário para Atualização dos Dados do Perfil
+    const updateProfileForm = document.getElementById('updateProfileForm');
+    if (updateProfileForm) {
+        updateProfileForm.addEventListener('submit', handleProfileUpdate);
     }
 }
 
-function handleVerification(e) {
-    e.preventDefault();
-    const inputCode = document.getElementById('input-security-code').value;
+// TRAVA EXCLUSIVA: Cria conta impedindo duplicidade de E-mail ou CPF
+let temporaryUserStorage = null; // Armazena o usuário enquanto aguarda a inserção do código 2FA
 
-    if (inputCode === generatedCode) {
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        const userIndex = users.findIndex(u => u.email === pendingUser.email);
+function handleSignUp(event) {
+    const name = document.getElementById('register-name').value.trim();
+    const cpf = document.getElementById('register-cpf').value.trim().replace(/[.-]/g, ''); // Limpa máscara
+    const email = document.getElementById('register-email').value.trim().toLowerCase();
+    const passwords = event.target.querySelectorAll('input[type="password"]');
+    const password = passwords.length ? passwords[0].value : '123456';
 
-        if (userIndex === -1) {
-            users.push(pendingUser);
-        } else {
-            pendingUser = users[userIndex]; // Retorna dados salvos anteriormente se o usuário já existia
-        }
-        
-        localStorage.setItem('users', JSON.stringify(users));
-        currentUser = pendingUser;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    const registeredUsers = getRegisteredUsers();
 
-        document.getElementById('authModal').classList.remove('active');
-        checkLoginStatus();
-        showPage('profile');
-
-        document.getElementById('registerForm').reset();
-        document.getElementById('loginForm').reset();
-        document.getElementById('verificationForm').reset();
-    } else {
-        alert("Código incorreto. Por favor, verifique o número gerado.");
-    }
-}
-
-// ==========================================
-// 5. ATUALIZAÇÃO E PERSISTÊNCIA DO PERFIL
-// ==========================================
-function updateProfileDOM() {
-    if (!currentUser) return;
-
-    // Atualiza a barra lateral (Sidebar)
-    document.getElementById('profile-user-name').innerText = currentUser.name;
-    document.getElementById('profile-user-email').innerText = currentUser.email;
-    document.getElementById('profile-user-cpf').innerText = `CPF: ${currentUser.cpf}`;
-    document.getElementById('profile-user-phone').innerText = currentUser.phone ? `Tel: ${currentUser.phone}` : "Sem telefone salvo";
-
-    // Preenche os Inputs de edição
-    document.getElementById('update-name').value = currentUser.name;
-    document.getElementById('update-phone').value = currentUser.phone || "";
-
-    renderOrders();
-}
-
-function handleProfileUpdate(e) {
-    e.preventDefault();
-    if (!currentUser) return;
-
-    currentUser.name = document.getElementById('update-name').value;
-    currentUser.phone = document.getElementById('update-phone').value;
-
-    // Atualiza a sessão ativa no LocalStorage
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-    // Sincroniza as alterações com a base de dados global local
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    users = users.map(u => u.email === currentUser.email ? currentUser : u);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    updateProfileDOM();
-    checkLoginStatus();
-    alert("Alterações salvas com sucesso!");
-}
-
-function renderOrders() {
-    const container = document.getElementById('orders-container');
-    if (!currentUser.orders || currentUser.orders.length === 0) {
-        container.innerHTML = `<p class="no-orders">Você ainda não realizou nenhum pedido.</p>`;
+    // 1. VALIDAÇÃO RIGOROSA: E-mail Duplicado
+    const emailExists = registeredUsers.some(user => user.email === email);
+    if (emailExists) {
+        alert("❌ Erro: Este endereço de e-mail já está cadastrado por outro usuário!");
+        document.getElementById('register-email').focus();
         return;
     }
 
-    container.innerHTML = currentUser.orders.map(order => `
-        <div class="order-card">
-            <div class="order-header">
-                <span>Pedido #${order.id} - ${order.date}</span>
-                <span class="status entregue">Entregue</span>
-            </div>
-            <p style="font-size: 14px; margin-bottom: 5px; color: #555;">${order.itemsSummary}</p>
-            <p style="font-size: 15px; font-weight: 600;">Total: R$ ${order.total.toFixed(2).replace('.', ',')}</p>
-        </div>
-    `).join('');
+    // 2. VALIDAÇÃO RIGOROSA: CPF Duplicado
+    const cpfExists = registeredUsers.some(user => user.cpf === cpf);
+    if (cpfExists) {
+        alert("❌ Erro: Este CPF já está vinculado a outra conta!");
+        document.getElementById('register-cpf').focus();
+        return;
+    }
+
+    // Armazena temporariamente os dados antes da validação do token
+    temporaryUserStorage = {
+        name: name,
+        cpf: cpf,
+        email: email,
+        password: password,
+        phone: '',
+        orders: [
+            { id: "#8842", date: "24/06/2026", total: "R$ 249,90", status: "entregue" }
+        ]
+    };
+
+    // Gera código randômico de 4 dígitos para exibição na simulação de 2FA
+    const generatedCode = Math.floor(1000 + Math.random() * 9000);
+    const codeBadge = document.getElementById('simulated-email-code');
+    if (codeBadge) codeBadge.textContent = generatedCode;
+
+    switchAuthMode('verification');
 }
 
-// ==========================================
-// 6. GESTÃO DO CARRINHO E COMPRAS
-// ==========================================
+// Finaliza o registro salvando na base global após a verificação do código
+function completeRegistrationFlow() {
+    const codeBadge = document.getElementById('simulated-email-code').textContent;
+    const inputCode = document.getElementById('input-security-code').value.trim();
+
+    if (inputCode !== codeBadge) {
+        alert("❌ Código incorreto. Verifique o número gerado no painel verde.");
+        return;
+    }
+
+    if (!temporaryUserStorage) return;
+
+    const registeredUsers = getRegisteredUsers();
+    registeredUsers.push(temporaryUserStorage);
+    localStorage.setItem(KEY_USERS, JSON.stringify(registeredUsers));
+
+    // Faz o login automático do usuário cadastrado
+    currentUser = temporaryUserStorage;
+    localStorage.setItem(KEY_SESSION, JSON.stringify(currentUser));
+
+    alert("✨ Conta criada e validada com sucesso!");
+    temporaryUserStorage = null;
+    
+    document.getElementById('registerForm').reset();
+    document.getElementById('verificationForm').reset();
+    
+    toggleAuthModal();
+    updateAuthUI();
+}
+
+// Processa a validação de Login convencional
+function handleLogin(event, emailId = 'signup-email', passwordId = 'signup-password') {
+    const email = document.getElementById(emailId).value.trim().toLowerCase();
+    const password = document.getElementById(passwordId).value;
+
+    const registeredUsers = getRegisteredUsers();
+    const foundUser = registeredUsers.find(user => user.email === email && user.password === password);
+
+    if (foundUser) {
+        currentUser = foundUser;
+        localStorage.setItem(KEY_SESSION, JSON.stringify(currentUser));
+        alert(`Olá, ${currentUser.name}! Login realizado com sucesso.`);
+        toggleAuthModal();
+        updateAuthUI();
+        if (!document.getElementById('page-profile').classList.contains('hidden')) {
+            loadProfileData();
+        }
+    } else {
+        // Se a conta não existe, nós convidamos de forma elegante a criar uma no fluxo com CPF
+        alert("Conta não localizada ou senha incorreta. Redirecionando para a criação de conta.");
+        switchAuthMode('register');
+    }
+}
+
+// Executa a saída do usuário logado
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem(KEY_SESSION);
+    alert("Sessão encerrada.");
+    updateAuthUI();
+    navigateTo('home');
+}
+
+// Atualiza informações cadastrais mutáveis (Nome e Telefone)
+function handleProfileUpdate(event) {
+    event.preventDefault();
+    if (!currentUser) return;
+
+    const updatedName = document.getElementById('update-name').value.trim();
+    const updatedPhone = document.getElementById('update-phone').value.trim();
+
+    currentUser.name = updatedName;
+    currentUser.phone = updatedPhone;
+    localStorage.setItem(KEY_SESSION, JSON.stringify(currentUser));
+
+    const registeredUsers = getRegisteredUsers();
+    const newUsersArray = registeredUsers.map(user => {
+        if (user.cpf === currentUser.cpf) {
+            return { ...user, name: updatedName, phone: updatedPhone };
+        }
+        return user;
+    });
+    localStorage.setItem(KEY_USERS, JSON.stringify(newUsersArray));
+
+    alert("✨ Dados atualizados com sucesso!");
+    loadProfileData();
+    updateAuthUI();
+}
+
+function toggleProfileDropdown() {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown) dropdown.classList.toggle('active');
+}
+
+// Mantém as interfaces do topo alinhadas com o estado da sessão
+function updateAuthUI() {
+    const openAuthBtn = document.getElementById('openAuthBtn');
+    const dropName = document.getElementById('drop-user-name');
+    const dropEmail = document.getElementById('drop-user-email');
+
+    if (currentUser) {
+        if (openAuthBtn) openAuthBtn.textContent = `👤 Olá, ${currentUser.name.split(' ')[0]}`;
+        if (dropName) dropName.textContent = currentUser.name;
+        if (dropEmail) dropEmail.textContent = currentUser.email;
+    } else {
+        if (openAuthBtn) openAuthBtn.textContent = "👤 Entrar";
+    }
+}
+
+function loadProfileData() {
+    if (!currentUser) return;
+
+    // Popula a barra lateral informativa
+    document.getElementById('profile-user-name').textContent = currentUser.name;
+    document.getElementById('profile-user-email').textContent = currentUser.email;
+    document.getElementById('profile-user-cpf').textContent = `CPF: ${currentUser.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}`;
+    document.getElementById('profile-user-phone').textContent = currentUser.phone ? `Tel: ${currentUser.phone}` : "Sem telefone salvo";
+
+    // Popula inputs do formulário de modificações
+    document.getElementById('update-name').value = currentUser.name;
+    document.getElementById('update-phone').value = currentUser.phone || '';
+
+    // Popula lista de compras
+    const container = document.getElementById('orders-container');
+    if (container) {
+        if (currentUser.orders && currentUser.orders.length > 0) {
+            container.innerHTML = currentUser.orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span>Pedido ${order.id}</span>
+                        <span class="status ${order.status}">${order.status}</span>
+                    </div>
+                    <p style="font-size: 13px; color: #888;">Data da transação: ${order.date}</p>
+                    <p style="font-size: 14px; font-weight: 600; margin-top: 10px;">Total: ${order.total}</p>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = `<p class="no-orders">Nenhum pedido efetuado até o momento.</p>`;
+        }
+    }
+}
+
+/* ==========================================================================
+   SISTEMA DE CARRINHO DE COMPRAS
+   ========================================================================== */
+
+function initCartEvents() {
+    const openCartBtn = document.getElementById('openCartBtn');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartOverlay = document.getElementById('cartOverlay');
+
+    if (openCartBtn) openCartBtn.addEventListener('click', () => cartOverlay.classList.add('active'));
+    if (closeCartBtn) closeCartBtn.addEventListener('click', () => cartOverlay.classList.remove('active'));
+
+    // Configura os botões da vitrine baseado nos atributos data-* do HTML fornecido
+    document.querySelectorAll('.product-card').forEach(card => {
+        const addBtn = card.querySelector('.btn-add');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const name = card.getAttribute('data-name');
+                const price = parseFloat(card.getAttribute('data-price'));
+                const img = card.getAttribute('data-img');
+                
+                addToCart({ id, name, price, img });
+            });
+        }
+    });
+
+    const checkoutBtn = document.getElementById('btn-checkout');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            alert("Compra finalizada com sucesso! Obrigado por comprar na VIBES ATELIER.");
+            cart = [];
+            updateCartUI();
+            cartOverlay.classList.remove('active');
+        });
+    }
+}
+
 function addToCart(product) {
     cart.push(product);
-    updateCartDOM();
+    updateCartUI();
     document.getElementById('cartOverlay').classList.add('active');
 }
 
-// Disponibilizado globalmente para escuta direta do atributo "onclick" herdado do seu HTML estruturado
-window.removeFromCart = function(index) {
+function removeFromCart(index) {
     cart.splice(index, 1);
-    updateCartDOM();
+    updateCartUI();
 }
 
-function updateCartDOM() {
-    const countBadge = document.getElementById('cart-count');
+function updateCartUI() {
     const container = document.getElementById('cart-items-container');
-    const totalDisplay = document.getElementById('cart-total-price');
+    const totalPriceElement = document.getElementById('cart-total-price');
+    const badgeCount = document.getElementById('cart-count');
 
-    countBadge.innerText = cart.length;
+    if (badgeCount) badgeCount.textContent = cart.length;
+
+    if (!container) return;
 
     if (cart.length === 0) {
         container.innerHTML = `<p class="empty-cart-msg">Seu carrinho está vazio.</p>`;
-        totalDisplay.innerText = "R$ 0,00";
+        if (totalPriceElement) totalPriceElement.textContent = "R$ 0,00";
         return;
     }
 
-    let total = 0;
-    container.innerHTML = cart.map((item, index) => {
-        total += item.price;
-        return `
-            <div class="cart-item">
-                <div class="cart-item-img">${item.img}</div>
-                <div class="cart-item-details">
-                    <h4>${item.name}</h4>
-                    <p>R$ ${item.price.toFixed(2).replace('.', ',')}</p>
-                    <button class="btn-remove-item" onclick="removeFromCart(${index})">Remover</button>
-                </div>
+    container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+            <div class="cart-item-img">${item.img}</div>
+            <div class="cart-item-details">
+                <h4>${item.name}</h4>
+                <p>R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                <button class="btn-remove-item" onclick="removeFromCart(${index})">Remover</button>
             </div>
-        `;
-    }).join('');
-
-    totalDisplay.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-}
-
-function checkout() {
-    if (cart.length === 0) {
-        alert("Adicione itens ao carrinho antes de finalizar!");
-        return;
-    }
-    if (!currentUser) {
-        alert("Acesse sua conta para concluir a compra.");
-        document.getElementById('cartOverlay').classList.remove('active');
-        document.getElementById('authModal').classList.add('active');
-        switchAuthView('login');
-        return;
-    }
+        </div>
+    `).join('');
 
     const total = cart.reduce((acc, item) => acc + item.price, 0);
-    const itemsSummary = cart.map(item => item.name).join(', ');
+    if (totalPriceElement) totalPriceElement.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
 
-    const newOrder = {
-        id: Math.floor(10000 + Math.random() * 90000),
-        date: new Date().toLocaleDateString('pt-BR'),
-        total: total,
-        itemsSummary: itemsSummary
-    };
+/* ==========================================================================
+   NAVEGAÇÃO DA PÁGINA (SINGLE PAGE APPLICATION)
+   ========================================================================== */
 
-    // Insere o novo pedido no topo da lista (histórico reativo do cliente)
-    currentUser.orders.unshift(newOrder);
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+function initNavigation() {
+    const logo = document.getElementById('logo-brand');
+    const btnHome = document.getElementById('btn-home');
 
-    // Atualiza o registro permanente no banco simulado
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    users = users.map(u => u.email === currentUser.email ? currentUser : u);
-    localStorage.setItem('users', JSON.stringify(users));
+    if (logo) logo.addEventListener('click', () => navigateTo('home'));
+    if (btnHome) btnHome.addEventListener('click', (e) => { e.preventDefault(); navigateTo('home'); });
 
-    // Reseta o estado do carrinho pós-venda concluída
-    cart = [];
-    updateCartDOM();
-    document.getElementById('cartOverlay').classList.remove('active');
+    // Fecha o dropdown caso o usuário clique em qualquer área cinza ou fora dele
+    window.addEventListener('click', (e) => {
+        const container = document.getElementById('profileDropdownContainer');
+        const dropdown = document.getElementById('profileDropdown');
+        if (dropdown && dropdown.classList.contains('active') && !container.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+}
 
-    // Atualiza a tela de exibição do painel e direciona o usuário
-    updateProfileDOM();
-    showPage('profile');
-    alert("Compra simulada com sucesso! Seu pedido já está no histórico.");
+function navigateTo(page) {
+    const homeView = document.getElementById('page-home');
+    const profileView = document.getElementById('page-profile');
+    const dropdown = document.getElementById('profileDropdown');
+
+    if (dropdown) dropdown.classList.remove('active');
+
+    if (page === 'profile') {
+        if (!currentUser) {
+            toggleAuthModal();
+            return;
+        }
+        loadProfileData();
+        if (homeView) homeView.classList.add('hidden');
+        if (profileView) profileView.classList.remove('hidden');
+    } else {
+        if (homeView) homeView.classList.remove('hidden');
+        if (profileView) profileView.classList.add('hidden');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
