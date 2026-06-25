@@ -11,7 +11,6 @@
 </head>
 <body>
 
-    <!-- Navegação / Topo Premium -->
     <header>
         <div class="logo" id="logo-brand">VIBES<span>ATELIER</span></div>
         <nav>
@@ -19,31 +18,28 @@
             <a href="#" class="nav-link">Feminino</a>
             <a href="#" class="nav-link">Masculino</a>
         </nav>
-       <!-- Modifique essa parte dentro do <header> -> .nav-icons -->
-<div class="nav-icons">
-    <!-- Menu de Perfil Profissional Dropdown -->
-    <div class="profile-menu-container" id="profileDropdownContainer">
-        <button class="icon-btn ripple" id="openAuthBtn">👤 Entrar</button>
-        <div class="profile-dropdown" id="profileDropdown">
-            <div class="dropdown-header">
-                <p class="dropdown-name" id="drop-user-name">Nome do Cliente</p>
-                <p class="dropdown-email" id="drop-user-email">cliente@email.com</p>
+        
+        <div class="nav-icons">
+            <div class="profile-menu-container" id="profileDropdownContainer">
+                <button class="icon-btn ripple" id="openAuthBtn">👤 Entrar</button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-header">
+                        <p class="dropdown-name" id="drop-user-name">Nome do Cliente</p>
+                        <p class="dropdown-email" id="drop-user-email">cliente@email.com</p>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <a href="#" class="dropdown-item" id="drop-btn-profile">⚙️ Meu Perfil</a>
+                    <a href="#" class="dropdown-item" id="drop-btn-orders">📦 Meus Pedidos</a>
+                    <hr class="dropdown-divider">
+                    <a href="#" class="dropdown-item logout-item" id="drop-btn-logout">🚪 Sair da Conta</a>
+                </div>
             </div>
-            <hr class="dropdown-divider">
-            <a href="#" class="dropdown-item" id="drop-btn-profile">⚙️ Meu Perfil</a>
-            <a href="#" class="dropdown-item" id="drop-btn-orders">📦 Meus Pedidos</a>
-            <hr class="dropdown-divider">
-            <a href="#" class="dropdown-item logout-item" id="drop-btn-logout">🚪 Sair da Conta</a>
+            
+            <button class="icon-btn ripple" id="openCartBtn">🛒 <span id="cart-count">0</span></button>
         </div>
-    </div>
-    
-    <button class="icon-btn ripple" id="openCartBtn">🛒 <span id="cart-count">0</span></button>
-</div>
     </header>
 
-    <!-- CONTEÚDO DINÂMICO (HOME DA LOJA) -->
     <div id="page-home" class="fade-in">
-        <!-- Banner Principal -->
         <section class="hero">
             <div class="hero-content">
                 <span class="hero-tag">ESSENCIAIS DE VERÃO</span>
@@ -52,11 +48,9 @@
             </div>
         </section>
 
-        <!-- Vitrine de Produtos -->
         <main class="container">
             <h2 class="section-title">Destaques da Semana</h2>
             <div class="products-grid">
-                <!-- Produto 1 -->
                 <div class="product-card" data-id="1" data-name="Casaco Minimalista Alfaiataria" data-price="249.90" data-img="🧥">
                     <div class="badge">Novo</div>
                     <div class="product-img-wrapper"><div class="product-img">🧥</div></div>
@@ -66,7 +60,6 @@
                         <button class="btn-add ripple">Adicionar ao Carrinho</button>
                     </div>
                 </div>
-                <!-- Produto 2 -->
                 <div class="product-card" data-id="2" data-name="Camiseta Algodão Egípcio" data-price="89.90" data-img="👕">
                     <div class="product-img-wrapper"><div class="product-img">👕</div></div>
                     <div class="product-info">
@@ -75,7 +68,6 @@
                         <button class="btn-add ripple">Adicionar ao Carrinho</button>
                     </div>
                 </div>
-                <!-- Produto 3 -->
                 <div class="product-card" data-id="3" data-name="Calça Sarja Slim Fit" data-price="159.90" data-img="👖">
                     <div class="product-img-wrapper"><div class="product-img">👖</div></div>
                     <div class="product-info">
@@ -88,7 +80,6 @@
         </main>
     </div>
 
-    <!-- PÁGINA DE PERFIL AVANÇADA -->
     <div id="page-profile" class="container hidden fade-in">
         <div class="profile-layout">
             <aside class="profile-sidebar">
@@ -99,8 +90,8 @@
                 </div>
                 <h3 id="profile-user-name">Nome do Usuário</h3>
                 <p id="profile-user-email">usuario@email.com</p>
-                <p id="profile-user-cpf" style="font-size:12px; margin-top:-25px; color:#aaa;">CPF: 000.000.000-00</p>
-                <p id="profile-user-phone" style="font-size:12px; margin-bottom:25px; color:#aaa;">Sem telefone salvo</p>
+                <p id="profile-user-cpf">CPF: 000.000.000-00</p>
+                <p id="profile-user-phone">Sem telefone salvo</p>
                 <button class="btn-logout ripple" id="btnLogout">Sair da Conta</button>
             </aside>
 
@@ -116,7 +107,7 @@
                             <label>Telefone</label>
                             <input type="text" id="update-phone" placeholder="(11) 99999-9999">
                         </div>
-                        <button type="submit" class="btn-submit ripple" style="margin-top:0; height:47px;">Salvar</button>
+                        <button type="submit" class="btn-submit ripple">Salvar</button>
                     </form>
                 </div>
                 <h2 style="margin-top: 40px; margin-bottom: 20px; font-weight: 400; letter-spacing: 1px;">Histórico de Pedidos</h2>
@@ -125,30 +116,27 @@
         </div>
     </div>
 
-    <!-- MODAL ÚNICO DE AUTENTICAÇÃO COM VERIFICAÇÃO DE E-MAIL -->
-    <div class="modal-overlay" id="authModal">
+    <div id="auth-modal" class="modal-overlay">
         <div class="modal-card">
-            <button class="close-btn" id="closeAuthBtn">&times;</button>
+            <button class="close-btn" onclick="toggleAuthModal()">&times;</button>
             
-            <!-- Vista 1: Login -->
-            <div id="auth-login-view" class="fade-in">
-                <h2>Acesse sua Conta</h2>
-                <p id="login-alert-msg">Insira seus dados para entrar.</p>
-                <form id="loginForm">
+            <div id="signup-form-container">
+                <h2>Acessar Conta</h2>
+                <p>Seja bem-vindo à VIBES ATELIER</p>
+                <form id="signup-form">
                     <div class="input-group">
                         <label>E-mail</label>
-                        <input type="email" id="login-email" placeholder="seu@email.com" required>
+                        <input type="email" id="signup-email" required placeholder="seu@email.com">
                     </div>
                     <div class="input-group">
                         <label>Senha</label>
-                        <input type="password" required placeholder="••••••••">
+                        <input type="password" id="signup-password" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-submit ripple">Solicitar Código de Acesso</button>
+                    <button type="submit" class="btn-submit ripple">Entrar</button>
                 </form>
-                <p class="switch-auth">Não tem conta? <a href="#" id="to-register">Criar uma conta</a></p>
+                <p class="switch-auth">Não tem uma conta? <a href="#" onclick="switchAuthMode('register')">Crie uma aqui</a></p>
             </div>
 
-            <!-- Vista 2: Cadastro -->
             <div id="auth-register-view" class="hidden fade-in">
                 <h2>Crie sua Conta</h2>
                 <p>Cadastre-se rápido para acompanhar suas compras.</p>
@@ -167,14 +155,13 @@
                     </div>
                     <div class="input-group">
                         <label>Senha</label>
-                        <input type="password" required placeholder="Crie uma senha forte">
+                        <input type="password" placeholder="Crie uma senha forte" required>
                     </div>
                     <button type="submit" class="btn-submit ripple">Enviar Código de Validação</button>
                 </form>
                 <p class="switch-auth">Já tem conta? <a href="#" id="to-login">Fazer Login</a></p>
             </div>
 
-            <!-- Vista 3: Tela do Código de Segurança (2FA) -->
             <div id="auth-verification-view" class="hidden fade-in" style="text-align: center;">
                 <h2>Código de Segurança</h2>
                 <p>Enviamos um código de verificação de 4 dígitos para o seu e-mail cadastrado.</p>
@@ -190,11 +177,9 @@
                 </form>
                 <p class="switch-auth"><a href="#" id="back-to-auth-start">Voltar ao início</a></p>
             </div>
-
         </div>
     </div>
 
-    <!-- GAVETA DO CARRINHO LATERAL -->
     <div class="cart-overlay" id="cartOverlay">
         <div class="cart-sidebar">
             <button class="close-btn" id="closeCartBtn">&times;</button>
@@ -212,96 +197,86 @@
         </div>
     </div>
 
-    <!-- ==========================================
-     RODAPÉ ROBUSTO (PADRÃO GLOBAL E-COMMERCE)
-     ========================================== -->
-<footer class="main-footer">
-    <div class="footer-container">
-        
-        <!-- Coluna 1: Links Institucionais -->
-        <div class="footer-column">
-            <h3>Informações da Empresa</h3>
-            <ul>
-                <li><a href="#">Sobre a VIBES ATELIER</a></li>
-                <li><a href="#">Carreiras</a></li>
-                <li><a href="#">Sustentabilidade</a></li>
-                <li><a href="#">Blog da Marca</a></li>
-            </ul>
-        </div>
-
-        <!-- Coluna 2: Ajuda e Suporte -->
-        <div class="footer-column">
-            <h3>Ajuda e Suporte</h3>
-            <ul>
-                <li><a href="#">Política de Frete</a></li>
-                <li><a href="#">Devoluções e Reembolso</a></li>
-                <li><a href="#">Como Pedir</a></li>
-                <li><a href="#">Rastrear Meu Pedido</a></li>
-                <li><a href="#">Guia de Tamanhos</a></li>
-            </ul>
-        </div>
-
-        <!-- Coluna 3: Atendimento -->
-        <div class="footer-column">
-            <h3>Atendimento ao Cliente</h3>
-            <ul>
-                <li><a href="#">Contate-nos</a></li>
-                <li><a href="#">Métodos de Pagamento</a></li>
-                <li><a href="#">Pontos Bônus</a></li>
-                <li><a href="#">Perguntas Frequentes</a></li>
-            </ul>
-        </div>
-
-        <!-- Coluna 4: Newsletter e Redes Sociais -->
-        <div class="footer-column footer-newsletter">
-            <h3>Cadastre-se para receber novidades</h3>
-            <p>Fique por dentro das coleções cápsulas e descontos exclusivos.</p>
+    <footer class="main-footer">
+        <div class="footer-container">
             
-            <form class="footer-form" onsubmit="event.preventDefault(); alert('Inscrição realizada!'); this.reset();">
-                <div class="footer-input-group">
-                    <input type="email" placeholder="Seu endereço de e-mail" required>
-                    <button type="submit">Inscrever-se</button>
-                </div>
-            </form>
+            <div class="footer-column">
+                <h3>Informações da Empresa</h3>
+                <ul>
+                    <li><a href="#">Sobre a VIBES ATELIER</a></li>
+                    <li><a href="#">Carreiras</a></li>
+                    <li><a href="#">Sustentabilidade</a></li>
+                    <li><a href="#">Blog da Marca</a></li>
+                </ul>
+            </div>
 
-            <form class="footer-form" onsubmit="event.preventDefault(); alert('WhatsApp cadastrado!'); this.reset();">
-                <div class="footer-input-group">
-                    <input type="tel" placeholder="Seu WhatsApp (DDD)" required>
-                    <button type="submit">Cadastrar</button>
-                </div>
-            </form>
+            <div class="footer-column">
+                <h3>Ajuda e Suporte</h3>
+                <ul>
+                    <li><a href="#">Política de Frete</a></li>
+                    <li><a href="#">Devoluções e Reembolso</a></li>
+                    <li><a href="#">Como Pedir</a></li>
+                    <li><a href="#">Rastrear Meu Pedido</a></li>
+                    <li><a href="#">Guia de Tamanhos</a></li>
+                </ul>
+            </div>
 
-            <div class="footer-socials">
-                <h4>Encontre-nos em</h4>
-                <div class="social-icons">
-                    <a href="#">📸</a>
-                    <a href="#">🎬</a>
-                    <a href="#">🐦</a>
-                    <a href="#">📌</a>
-                    <a href="#">💼</a>
+            <div class="footer-column">
+                <h3>Atendimento ao Cliente</h3>
+                <ul>
+                    <li><a href="#">Contate-nos</a></li>
+                    <li><a href="#">Métodos de Pagamento</a></li>
+                    <li><a href="#">Pontos Bônus</a></li>
+                    <li><a href="#">Perguntas Frequentes</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column footer-newsletter">
+                <h3>Cadastre-se para receber novidades</h3>
+                <p>Fique por dentro das coleções cápsulas e descontos exclusivos.</p>
+                
+                <form class="footer-form" onsubmit="event.preventDefault(); alert('Inscrição realizada!'); this.reset();">
+                    <div class="footer-input-group">
+                        <input type="email" placeholder="Seu endereço de e-mail" required>
+                        <button type="submit">Inscrever-se</button>
+                    </div>
+                </form>
+
+                <form class="footer-form" onsubmit="event.preventDefault(); alert('WhatsApp cadastrado!'); this.reset();">
+                    <div class="footer-input-group">
+                        <input type="tel" placeholder="Seu WhatsApp (DDD)" required>
+                        <button type="submit">Cadastrar</button>
+                    </div>
+                </form>
+
+                <div class="footer-socials">
+                    <h4>Encontre-nos em</h4>
+                    <div class="social-icons">
+                        <a href="#">📸</a>
+                        <a href="#">🎬</a>
+                        <a href="#">🐦</a>
+                        <a href="#">📌</a>
+                        <a href="#">💼</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-    </div>
-
-    <!-- Linha Inferior: Direitos Autorais e Pagamentos -->
-    <div class="footer-bottom">
-        <div class="footer-bottom-container">
-            <p>&copy; 2026 VIBES ATELIER. Todos os direitos reservados. Estilo consciente e atemporal.</p>
-            
-            <div class="footer-payments">
-                <span>PAGAMENTO:</span>
-                <!-- Emojis/Textos simulando os cartões de forma elegante -->
-                <div class="payment-badges">
-                    <span class="pay-badge">💳 Pix</span>
-                    <span class="pay-badge">💳 Cartão</span>
-                    <span class="pay-badge">📄 Boleto</span>
-                    <span class="pay-badge">🍏 Pay</span>
+        <div class="footer-bottom">
+            <div class="footer-bottom-container">
+                <p>&copy; 2026 VIBES ATELIER. Todos os direitos reservados. Estilo consciente e atemporal.</p>
+                
+                <div class="footer-payments">
+                    <span>PAGAMENTO:</span>
+                    <div class="payment-badges">
+                        <span class="pay-badge">💳 Pix</span>
+                        <span class="pay-badge">💳 Cartão</span>
+                        <span class="pay-badge">📄 Boleto</span>
+                        <span class="pay-badge">🍏 Pay</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </footer>
 
     <script src="script.js"></script>
